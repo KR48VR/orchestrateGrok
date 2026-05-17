@@ -1,225 +1,930 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Grok Orchestrator Training: Normal vs Orchestrate</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <style>
-    .tab-active {
-      border-bottom: 4px solid #3b82f6;
-      font-weight: 600;
-      color: #1e40af;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orchestration: Grok vs Claude</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0d0f;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: #2a2a35;
+    --grok: #1d9bf0;
+    --grok-dim: rgba(29,155,240,0.12);
+    --claude: #d97757;
+    --claude-dim: rgba(217,119,87,0.12);
+    --neutral: #52525b;
+    --text: #e8e8ed;
+    --muted: #71717a;
+    --accent: #a78bfa;
+    --green: #34d399;
+    --red: #f87171;
+  }
 
-    .content-card {
-      min-height: 420px;
-    }
-  </style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(167,139,250,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(167,139,250,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #e8e8ed 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* KEY INSIGHT BOX */
+  .insight {
+    background: rgba(167,139,250,0.06);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .insight-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .insight-text {
+    font-size: 14px;
+    color: #c4b5fd;
+    line-height: 1.6;
+  }
+
+  .insight-text strong {
+    color: var(--accent);
+  }
+
+  /* PLATFORM TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+
+  .tab-btn {
+    padding: 10px 24px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab-btn:hover { color: var(--text); }
+
+  .tab-btn.active-grok {
+    background: var(--grok-dim);
+    color: var(--grok);
+    border: 1px solid rgba(29,155,240,0.25);
+  }
+
+  .tab-btn.active-claude {
+    background: var(--claude-dim);
+    color: var(--claude);
+    border: 1px solid rgba(217,119,87,0.25);
+  }
+
+  .tab-btn.active-compare {
+    background: rgba(167,139,250,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(167,139,250,0.25);
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-grok { background: var(--grok); }
+  .dot-claude { background: var(--claude); }
+  .dot-compare { background: var(--accent); }
+
+  /* PANEL */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* QUERY SELECTOR */
+  .query-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .q-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .q-btn:hover { border-color: var(--neutral); color: var(--text); }
+  .q-btn.active { border-color: var(--grok); color: var(--grok); background: var(--grok-dim); }
+  .q-btn.active-claude { border-color: var(--claude); color: var(--claude); background: var(--claude-dim); }
+
+  /* SIDE BY SIDE */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .badge-normal { background: rgba(82,82,91,0.3); color: #a1a1aa; }
+  .badge-orch { background: var(--grok-dim); color: var(--grok); }
+  .badge-claude-normal { background: rgba(82,82,91,0.3); color: #a1a1aa; }
+  .badge-claude-orch { background: var(--claude-dim); color: var(--claude); }
+
+  .card-body {
+    padding: 20px;
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #d1d1db;
+  }
+
+  .card-body ul {
+    padding-left: 18px;
+    margin: 10px 0;
+  }
+
+  .card-body li { margin-bottom: 6px; }
+
+  .card-body strong { color: var(--text); font-weight: 500; }
+
+  .plan-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--grok);
+    background: var(--grok-dim);
+    border: 1px solid rgba(29,155,240,0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .plan-tag-claude {
+    color: var(--claude);
+    background: var(--claude-dim);
+    border-color: rgba(217,119,87,0.2);
+  }
+
+  .synth {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(52,211,153,0.06);
+    border-left: 3px solid var(--green);
+    border-radius: 0 6px 6px 0;
+    font-size: 13px;
+    color: #6ee7b7;
+  }
+
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin: 10px 0;
+  }
+
+  th {
+    background: var(--surface2);
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    color: #d1d1db;
+  }
+
+  td:first-child { font-weight: 500; color: var(--text); }
+
+  /* DIFF CALLOUT */
+  .diff-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 8px;
+  }
+
+  .diff-box h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .diff-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .diff-same { color: #6ee7b7; }
+  .diff-different { color: #fbbf24; }
+
+  .diff-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin-bottom: 5px;
+  }
+
+  .diff-item span:first-child { flex-shrink: 0; margin-top: 2px; }
+
+  /* COMPARE TABLE */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+
+  .cg-header {
+    padding: 14px 18px;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cg-header.grok-col { color: var(--grok); }
+  .cg-header.claude-col { color: var(--claude); }
+
+  .cg-row-label {
+    padding: 13px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+  }
+
+  .cg-cell {
+    padding: 13px 18px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    color: #d1d1db;
+    display: flex;
+    align-items: center;
+  }
+
+  .cg-cell:last-child { border-right: none; }
+  .cg-row-label:last-child,
+  .cg-cell:nth-last-child(-n+3) { border-bottom: none; }
+
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  .pill-green { background: rgba(52,211,153,0.12); color: var(--green); }
+  .pill-yellow { background: rgba(251,191,36,0.12); color: #fbbf24; }
+  .pill-blue { background: var(--grok-dim); color: var(--grok); }
+  .pill-orange { background: var(--claude-dim); color: var(--claude); }
+
+  /* WHEN TO USE */
+  .when-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .when-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .when-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .when-item {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .when-item::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--border);
+  }
+
+  .when-item.yes::before { content: '✓'; color: var(--green); }
+  .when-item.no::before { content: '✗'; color: var(--red); }
+
+  /* PROMPT BOX */
+  .prompt-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+
+  .prompt-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .prompt-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #c4b5fd;
+  }
+
+  .prompt-text .keyword-grok { color: var(--grok); }
+  .prompt-text .keyword-claude { color: var(--claude); }
+
+  /* FOOTER NOTE */
+  .footer-note {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 48px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* QUERY CONTENT */
+  .query-content { display: none; }
+  .query-content.active { display: block; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .split { grid-template-columns: 1fr; }
+    .when-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .diff-row { grid-template-columns: 1fr; }
+    .tabs { flex-direction: column; width: 100%; }
+  }
+
+  /* FADE IN */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .panel.active { animation: fadeUp 0.3s ease; }
+</style>
 </head>
+<body>
+<div class="wrap">
 
-<body class="bg-gray-50 font-sans">
-  <div class="max-w-7xl mx-auto p-8">
-    <header class="text-center mb-10">
-      <h1 class="text-4xl font-bold text-gray-900 mb-3">Grok Orchestrator Training</h1>
-      <p class="text-xl text-gray-600">Normal Mode vs "Orchestrate:" Mode — Interactive Demo</p>
-    </header>
+  <header>
+    <span class="eyebrow">AI Training Module</span>
+    <h1>Orchestration:<br>Grok vs Claude</h1>
+    <p class="subtitle">How the two platforms handle complex, multi-step tasks — and when you actually need the magic word.</p>
+  </header>
 
-    <!-- Original Prompts -->
-    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-10">
-      <h3 class="font-semibold text-blue-900 mb-4">Original Prompts Used in Examples</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-        <div>
-          <strong>Query 1:</strong><br>
-          “Summarize All-In Podcast’s view on AI coding agents vs Orchestrate:Summarize All-In Podcast’s view on AI
-          coding agents”
-        </div>
-        <div>
-          <strong>Query 2:</strong><br>
-          “Help me decide whether to invest in AI infrastructure companies — compare data center stocks, energy, and
-          chips. vs Orchestrate: Help me decide whether to invest in AI infrastructure companies — compare data center
-          stocks, energy, and chips.”
-        </div>
+  <div class="insight">
+    <div class="insight-icon">💡</div>
+    <div class="insight-text">
+      <strong>The honest truth:</strong> Neither platform requires you to say "Orchestrate:" to do great work. The word just tells the AI to be more structured and show its thinking. Both Grok and Claude coordinate tools and steps behind the scenes automatically — you just talk normally.
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active-grok" onclick="switchTab('grok')">
+      <span class="dot dot-grok"></span> Grok
+    </button>
+    <button class="tab-btn" onclick="switchTab('claude')">
+      <span class="dot dot-claude"></span> Claude
+    </button>
+    <button class="tab-btn" onclick="switchTab('compare')">
+      <span class="dot dot-compare"></span> Side by Side
+    </button>
+  </div>
+
+  <!-- =================== GROK PANEL =================== -->
+  <div class="panel active" id="panel-grok">
+    <p class="section-label">Grok on X / xAI</p>
+
+    <div class="insight" style="border-color:rgba(29,155,240,0.2); background:rgba(29,155,240,0.05);">
+      <div class="insight-icon">🐦</div>
+      <div class="insight-text" style="color:#93c5fd;">
+        Grok offers an optional <strong style="color:var(--grok)">"Orchestrate:"</strong> prefix. It triggers a more structured, transparent multi-step workflow — but for simple tasks, it makes no difference. The sub-agents Grok describes are internal thinking modes, not separate AI instances.
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex justify-center gap-8 mb-8 border-b border-gray-300">
-      <button onclick="showTab(0)" id="tab0" class="tab-active pb-3 px-8 text-lg">Query 1: All-In Podcast AI Coding
-        Agents</button>
-      <button onclick="showTab(1)" id="tab1" class="pb-3 px-8 text-lg">Query 2: AI Infrastructure Investment
-        Decision</button>
+    <!-- Query selector -->
+    <div class="query-row">
+      <button class="q-btn active" id="gq0" onclick="switchQuery('g',0)">Query 1: All-In Podcast</button>
+      <button class="q-btn" id="gq1" onclick="switchQuery('g',1)">Query 2: AI Infrastructure</button>
     </div>
 
-    <!-- Query 1 -->
-    <div id="content0">
-      <div class="grid grid-cols-2 gap-8">
-        <!-- Normal Mode Query 1 -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
-          <div class="flex items-center gap-3 mb-6">
-            <i class="fa-solid fa-bolt text-amber-500 text-2xl"></i>
-            <h2 class="text-2xl font-semibold">Normal Mode</h2>
+    <!-- QUERY 1 GROK -->
+    <div class="query-content active" id="g-q0">
+      <div class="prompt-box">
+        <div class="prompt-label">The prompt</div>
+        <div class="prompt-text">"Summarize All-In Podcast's view on AI coding agents"<br>vs.<br><span class="keyword-grok">Orchestrate:</span> Summarize All-In Podcast's view on AI coding agents"</div>
+      </div>
+      <div class="split">
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-grok"></div>
+            <span class="card-label">Normal Mode</span>
+            <span class="badge badge-normal">no prefix</span>
           </div>
-          <div class="prose prose-gray">
-            <p>All-In Podcast is very bullish on AI coding agents. Recent episodes with Marc Benioff highlight how tools
-              from Anthropic (Claude) are making coding dramatically cheaper and faster. Benioff says he's spending
-              ~$300M this year on Anthropic and that agents let Salesforce do things they couldn't before — humans +
-              agents working together. </p>
-            <p>They see agents disrupting SaaS (some companies will thrive by focusing on customers/innovation, others
-              will die if they don't adapt). Jensen Huang clip: every engineer will soon have 100 agents, shifting work
-              to creativity and orchestration rather than raw coding. </p>
-            <p><strong>Overall tone</strong>: Massive efficiency gains, but it will reshape software companies and
-              valuations.</p>
+          <div class="card-body">
+            <p>All-In Podcast is very bullish on AI coding agents. Recent episodes with Marc Benioff highlight how tools from Anthropic are making coding dramatically cheaper and faster.</p>
+            <p style="margin-top:10px;">They see agents disrupting SaaS — some companies will thrive by focusing on customers, others won't adapt. Jensen Huang clip: every engineer will soon have 100 agents.</p>
+            <p style="margin-top:10px;"><strong>Overall tone:</strong> Massive efficiency gains, but it will reshape software companies and valuations.</p>
           </div>
         </div>
-
-        <!-- Orchestrate Mode Query 1 -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
-          <div class="flex items-center gap-3 mb-6">
-            <i class="fa-solid fa-sitemap text-blue-600 text-2xl"></i>
-            <h2 class="text-2xl font-semibold">Orchestrate Mode</h2>
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-grok"></div>
+            <span class="card-label">Orchestrate Mode</span>
+            <span class="badge badge-orch">with prefix</span>
           </div>
-          <div class="prose prose-gray">
-            <p class="text-blue-600 font-medium mb-3">Orchestrator Plan → Researcher + Analyst + Critic + Synthesizer
-            </p>
-            <ul class="list-disc pl-5 space-y-3">
-              <li><strong>Enthusiasm Level</strong>: Extremely high. Benioff calls coding agents “awesome” and a “rocket
-                ship.”</li>
-              <li><strong>Core View</strong>: Agents make everything cheaper/faster → unprecedented efficiency in
-                service, marketing, and distribution.</li>
-              <li><strong>SaaS Impact</strong>: Brutal adaptation — customer-obsessed companies win, others die. Public
-                markets will punish fantasy valuations.</li>
-              <li><strong>Broader Shift</strong>: Engineers move from writing code to specifying architectures and
-                managing agent teams.</li>
-              <li><strong>Caveats</strong>: Power/compute constraints (Chamath), open-source agents as potential
-                disruptors.</li>
+          <div class="card-body">
+            <div class="plan-tag">Orchestrator Plan → Researcher + Analyst + Critic + Synthesizer</div>
+            <ul>
+              <li><strong>Enthusiasm Level:</strong> Extremely high. Benioff calls coding agents "awesome" — spending ~$300M on Anthropic.</li>
+              <li><strong>Core View:</strong> Agents make everything cheaper/faster → unprecedented efficiency in service, marketing, distribution.</li>
+              <li><strong>SaaS Impact:</strong> Brutal adaptation — customer-obsessed companies win, others die. Public markets will punish fantasy valuations.</li>
+              <li><strong>Broader Shift:</strong> Engineers move from writing code to specifying architectures and managing agent teams.</li>
+              <li><strong>Caveats:</strong> Power/compute constraints (Chamath), open-source agents as potential disruptors.</li>
             </ul>
-            <p class="mt-6 font-medium">Synthesis: Transformative and inevitable. Short-term disruption, long-term
-              software productivity explosion and abundance.</p>
+            <div class="synth">Synthesis: Transformative and inevitable. Short-term disruption, long-term software productivity explosion.</div>
+          </div>
+        </div>
+      </div>
+      <div class="diff-box">
+        <h4>What changed?</h4>
+        <div class="diff-row">
+          <div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both capture the bullish tone and Benioff quotes</span></div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both mention SaaS disruption and efficiency gains</span></div>
+          </div>
+          <div>
+            <div class="diff-item diff-different"><span>△</span><span>Orchestrate mode shows the plan, labels sub-agents, and adds a synthesis section</span></div>
+            <div class="diff-item diff-different"><span>△</span><span>More structured bullet points and caveats in Orchestrate mode</span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Query 2 -->
-    <div id="content1" class="hidden">
-      <div class="grid grid-cols-2 gap-8">
-        <!-- Normal Mode Query 2 -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
-          <div class="flex items-center gap-3 mb-6">
-            <i class="fa-solid fa-bolt text-amber-500 text-2xl"></i>
-            <h2 class="text-2xl font-semibold">Normal Mode</h2>
+    <!-- QUERY 2 GROK -->
+    <div class="query-content" id="g-q1">
+      <div class="prompt-box">
+        <div class="prompt-label">The prompt</div>
+        <div class="prompt-text">"Help me decide whether to invest in AI infrastructure — compare data center stocks, energy, and chips"<br>vs.<br><span class="keyword-grok">Orchestrate:</span> Help me decide whether to invest in AI infrastructure…"</div>
+      </div>
+      <div class="split">
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-grok"></div>
+            <span class="card-label">Normal Mode</span>
+            <span class="badge badge-normal">no prefix</span>
           </div>
-          <div class="prose prose-gray">
-            <p>AI infrastructure is booming due to hyperscaler CapEx (hundreds of billions in 2026). </p>
-            <ul class="list-disc pl-5 space-y-2">
-              <li><strong>Chips</strong>: Nvidia (NVDA) dominant but high valuations.</li>
-              <li><strong>Data Centers</strong>: EQIX, DLR, Vertiv (VRT) benefiting from rack density.</li>
-              <li><strong>Energy</strong>: Constellation (CEG), Bloom Energy (BE) seeing huge demand from AI power
-                needs.</li>
+          <div class="card-body">
+            <p>AI infrastructure is booming due to hyperscaler CapEx (hundreds of billions in 2026).</p>
+            <ul>
+              <li><strong>Chips:</strong> Nvidia (NVDA) still dominant, but valuations are high.</li>
+              <li><strong>Data Centers:</strong> Equinix, Digital Realty, Vertiv — benefiting from rack density jumps.</li>
+              <li><strong>Energy:</strong> Constellation, Bloom Energy seeing huge demand.</li>
             </ul>
-            <p><strong>Quick Take</strong>: Yes, invest for long-term tailwinds, but diversify. Chips are more mature;
-              data centers + energy have more runway. Watch Big Tech CapEx updates. Risks: interest rates, overbuild.
-            </p>
+            <p style="margin-top:10px;"><strong>Quick Take:</strong> Yes, invest for long-term tailwinds, but diversify. Chips are more mature in the cycle; data centers + power have more runway.</p>
           </div>
         </div>
-
-        <!-- Orchestrate Mode Query 2 -->
-        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
-          <div class="flex items-center gap-3 mb-6">
-            <i class="fa-solid fa-sitemap text-blue-600 text-2xl"></i>
-            <h2 class="text-2xl font-semibold">Orchestrate Mode</h2>
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-grok"></div>
+            <span class="card-label">Orchestrate Mode</span>
+            <span class="badge badge-orch">with prefix</span>
           </div>
-          <div class="prose prose-gray">
-            <p class="text-blue-600 font-medium mb-3">Orchestrator Plan → Multiple researchers + Analyst + Critic +
-              Synthesizer</p>
-
-            <table class="w-full border-collapse text-sm mb-6">
-              <thead>
-                <tr class="bg-gray-100">
-                  <th class="p-3 text-left">Sector</th>
-                  <th class="p-3 text-left">Tailwinds</th>
-                  <th class="p-3 text-left">Risks</th>
-                  <th class="p-3 text-left">Outlook</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td class="p-3 border-t">Chips</td>
-                  <td class="p-3 border-t">GPU + custom accelerators</td>
-                  <td class="p-3 border-t">High valuations, geopolitics</td>
-                  <td class="p-3 border-t">Strong but maturing</td>
-                </tr>
-                <tr>
-                  <td class="p-3 border-t">Data Centers</td>
-                  <td class="p-3 border-t">Rack density + buildout</td>
-                  <td class="p-3 border-t">Power shortages, delays</td>
-                  <td class="p-3 border-t font-bold text-green-600">Highest near-term upside</td>
-                </tr>
-                <tr>
-                  <td class="p-3 border-t">Energy</td>
-                  <td class="p-3 border-t">Nuclear & fuel cells demand</td>
-                  <td class="p-3 border-t">Regulation, grid issues</td>
-                  <td class="p-3 border-t">Explosive potential</td>
-                </tr>
-              </tbody>
-            </table>
-
-            <p class="font-medium">Recommendation: Overweight Data Centers + Energy now. Diversify across all three.
-              Multi-year hold favored.</p>
+          <div class="card-body">
+            <div class="plan-tag">Orchestrator Plan → Multiple Researchers + Analyst + Critic + Synthesizer</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Sector</th><th>Tailwinds</th><th>Risks</th><th>Outlook</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Chips</td><td>GPU demand, custom accelerators</td><td>High valuations, China tensions</td><td>Strong but slowing</td></tr>
+                  <tr><td>Data Centers</td><td>Rack density, hyperscaler buildout</td><td>Power shortages, delays</td><td>Highest near-term upside</td></tr>
+                  <tr><td>Energy</td><td>Nuclear/fuel cells demand</td><td>Regulation, grid delays</td><td>Explosive if contracts signed</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>Recommendation:</strong> Overweight Data Centers + Energy now. Diversify across all three. Multi-year hold favored. Monitor Big Tech CapEx guidance.</p>
+            <div class="synth">Risks: Overbuild, recession, policy changes.</div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Key Differences -->
-    <div class="mt-16 bg-white rounded-3xl shadow p-10">
-      <h3 class="text-2xl font-bold mb-8 text-center">Key Differences Summary</h3>
-      <div class="grid grid-cols-3 gap-8 text-center">
-        <div>
-          <div class="text-5xl mb-4">⚡</div>
-          <h4 class="font-semibold">Normal Mode</h4>
-          <ul class="text-left mt-4 space-y-2 text-sm">
-            <li>✓ Fast</li>
-            <li>✓ Conversational</li>
-            <li>✓ Good for simple asks</li>
-            <li class="text-red-500">✗ Less structure &amp; depth</li>
-          </ul>
-        </div>
-        <div>
-          <div class="text-5xl mb-4">🧠</div>
-          <h4 class="font-semibold">Orchestrate Mode</h4>
-          <ul class="text-left mt-4 space-y-2 text-sm">
-            <li>✓ Full internal team</li>
-            <li>✓ Transparent workflow</li>
-            <li>✓ Structured &amp; thorough</li>
-            <li>✓ Better for complex tasks</li>
-          </ul>
-        </div>
-        <div>
-          <div class="text-5xl mb-4">🎯</div>
-          <h4 class="font-semibold">When to Use</h4>
-          <p class="mt-6 text-sm leading-relaxed">Use <strong>Orchestrate:</strong> for research, decisions,
-            comparisons, or recurring tracking.<br><br>Use Normal for quick facts or casual questions.</p>
+      <div class="diff-box">
+        <h4>What changed?</h4>
+        <div class="diff-row">
+          <div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both recommend investing with diversification</span></div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both highlight the infrastructure boom</span></div>
+          </div>
+          <div>
+            <div class="diff-item diff-different"><span>△</span><span>Orchestrate mode adds a full comparison table with risks and outlook per sector</span></div>
+            <div class="diff-item diff-different"><span>△</span><span>Explicit decision framework and actionable monitoring advice</span></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script>
-    function showTab(n) {
-      document.getElementById('content0').classList.add('hidden');
-      document.getElementById('content1').classList.add('hidden');
-      document.getElementById('content' + n).classList.remove('hidden');
+  <!-- =================== CLAUDE PANEL =================== -->
+  <div class="panel" id="panel-claude">
+    <p class="section-label">Claude — claude.ai / Desktop App</p>
 
-      document.getElementById('tab0').classList.remove('tab-active');
-      document.getElementById('tab1').classList.remove('tab-active');
-      document.getElementById('tab' + n).classList.add('tab-active');
-    }
-    showTab(0);
-  </script>
+    <div class="insight" style="border-color:rgba(217,119,87,0.2); background:rgba(217,119,87,0.05);">
+      <div class="insight-icon">🤖</div>
+      <div class="insight-text" style="color:#fdba74;">
+        Claude does <strong style="color:var(--claude)">not use "Orchestrate:"</strong> as a keyword. Orchestration happens automatically. For complex tasks, Claude searches the web, runs code, calls apps, and synthesizes results — all without being told to. You just speak naturally. Adding detail to your prompt improves output, not adding a special word.
+      </div>
+    </div>
+
+    <div class="query-row">
+      <button class="q-btn active-claude active" id="cq0" onclick="switchQuery('c',0)">Query 1: All-In Podcast</button>
+      <button class="q-btn" id="cq1" onclick="switchQuery('c',1)">Query 2: AI Infrastructure</button>
+    </div>
+
+    <!-- QUERY 1 CLAUDE -->
+    <div class="query-content active" id="c-q0">
+      <div class="prompt-box">
+        <div class="prompt-label">The prompt — plain language works</div>
+        <div class="prompt-text">"Summarize All-In Podcast's view on AI coding agents"<br>vs.<br><span class="keyword-claude">More detailed:</span> "Summarize All-In Podcast's view on AI coding agents — cover the main hosts' takes, any caveats, and what it means for SaaS companies"</div>
+      </div>
+      <div class="split">
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-claude"></div>
+            <span class="card-label">Brief Prompt</span>
+            <span class="badge badge-claude-normal">less detail</span>
+          </div>
+          <div class="card-body">
+            <p>All-In Podcast is very bullish on AI coding agents. Marc Benioff's episode highlighted how tools from Anthropic are making coding dramatically cheaper and faster.</p>
+            <p style="margin-top:10px;">They see agents disrupting SaaS — companies that focus on customers will thrive; others won't adapt in time.</p>
+            <p style="margin-top:10px;"><strong>Overall tone:</strong> Massive efficiency gains, with big implications for software company valuations.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-claude"></div>
+            <span class="card-label">Detailed Prompt</span>
+            <span class="badge badge-claude-orch">more context given</span>
+          </div>
+          <div class="card-body">
+            <div class="plan-tag plan-tag-claude">Claude auto-searches + synthesizes across sources</div>
+            <ul>
+              <li><strong>Enthusiasm Level:</strong> Extremely high. Benioff calls coding agents transformative — spending ~$300M on Anthropic, using agents in sales and implementation simultaneously.</li>
+              <li><strong>Core View:</strong> Agents make everything cheaper/faster → unprecedented efficiency in service, marketing, distribution.</li>
+              <li><strong>SaaS Impact:</strong> Brutal adaptation — customer-obsessed companies win, others die. Public markets will punish fantasy valuations.</li>
+              <li><strong>Broader Shift:</strong> Engineers move from writing code to specifying architectures and managing agent teams (Jensen Huang's "100 agents per engineer").</li>
+              <li><strong>Caveats:</strong> Power/compute constraints (Chamath), open-source disruption potential.</li>
+            </ul>
+            <div class="synth" style="border-color:var(--claude);background:rgba(217,119,87,0.06);color:#fdba74;">Synthesis: Transformative and inevitable. Short-term disruption, long-term software productivity explosion. Claude adds: this aligns with broader industry consensus.</div>
+          </div>
+        </div>
+      </div>
+      <div class="diff-box">
+        <h4>What actually drives the difference in Claude?</h4>
+        <div class="diff-row">
+          <div>
+            <div class="diff-item diff-same"><span>✓</span><span>Claude uses tools automatically either way</span></div>
+            <div class="diff-item diff-same"><span>✓</span><span>No special keyword needed</span></div>
+          </div>
+          <div>
+            <div class="diff-item diff-different"><span>△</span><span>More detail in your prompt = more depth in the answer</span></div>
+            <div class="diff-item diff-different"><span>△</span><span>Adding specific angles ("cover caveats, SaaS impact") guides the structure</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUERY 2 CLAUDE -->
+    <div class="query-content" id="c-q1">
+      <div class="prompt-box">
+        <div class="prompt-label">The prompt</div>
+        <div class="prompt-text">"Help me decide whether to invest in AI infrastructure — compare data centers, energy, and chips"<br>vs.<br><span class="keyword-claude">More detailed:</span> "…include risks per sector, current outlook, and a clear recommendation"</div>
+      </div>
+      <div class="split">
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-claude"></div>
+            <span class="card-label">Brief Prompt</span>
+            <span class="badge badge-claude-normal">less detail</span>
+          </div>
+          <div class="card-body">
+            <p>AI infrastructure is booming. Hyperscalers are spending hundreds of billions in 2026.</p>
+            <ul>
+              <li><strong>Chips:</strong> Nvidia dominant but valuations are stretched.</li>
+              <li><strong>Data Centers:</strong> Equinix, Vertiv — benefiting from rack density surge.</li>
+              <li><strong>Energy:</strong> Nuclear and fuel cell plays seeing huge AI power demand.</li>
+            </ul>
+            <p style="margin-top:10px;">Diversify across all three for long-term tailwinds. Data centers and energy have more near-term runway than chips.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="dot dot-claude"></div>
+            <span class="card-label">Detailed Prompt</span>
+            <span class="badge badge-claude-orch">more context given</span>
+          </div>
+          <div class="card-body">
+            <div class="plan-tag plan-tag-claude">Claude auto-searches market data + synthesizes</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Sector</th><th>Tailwinds</th><th>Risks</th><th>Outlook</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Chips</td><td>GPU demand, custom accelerators</td><td>High valuations, China tensions</td><td>Strong but momentum slowing</td></tr>
+                  <tr><td>Data Centers</td><td>Rack density, buildout surge</td><td>Power shortages, delays</td><td>Highest near-term upside</td></tr>
+                  <tr><td>Energy</td><td>Nuclear/fuel cells demand</td><td>Regulation, grid delays</td><td>Explosive if contracts signed</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p style="margin-top:12px;"><strong>Recommendation:</strong> Overweight Data Centers + Energy now. Multi-year hold favored. Monitor Big Tech CapEx guidance.</p>
+            <div class="synth" style="border-color:var(--claude);background:rgba(217,119,87,0.06);color:#fdba74;">Note: This is informational only — not financial advice. Consult a licensed advisor for investment decisions.</div>
+          </div>
+        </div>
+      </div>
+      <div class="diff-box">
+        <h4>What actually drives the difference in Claude?</h4>
+        <div class="diff-row">
+          <div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both give a diversification recommendation</span></div>
+            <div class="diff-item diff-same"><span>✓</span><span>Both use web search automatically</span></div>
+          </div>
+          <div>
+            <div class="diff-item diff-different"><span>△</span><span>Specifying "include risks, outlook, clear recommendation" shapes the output format</span></div>
+            <div class="diff-item diff-different"><span>△</span><span>Claude adds a financial advice disclaimer automatically</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================== COMPARE PANEL =================== -->
+  <div class="panel" id="panel-compare">
+    <p class="section-label">Grok vs Claude — Head to Head</p>
+
+    <div class="compare-grid">
+      <div class="cg-header">Feature</div>
+      <div class="cg-header grok-col">🐦 Grok</div>
+      <div class="cg-header claude-col">🤖 Claude</div>
+
+      <div class="cg-row-label">Magic keyword</div>
+      <div class="cg-cell"><span class="pill pill-blue">"Orchestrate:"</span>&nbsp; optional</div>
+      <div class="cg-cell"><span class="pill pill-yellow">None</span>&nbsp; just talk normally</div>
+
+      <div class="cg-row-label">Tool use</div>
+      <div class="cg-cell">X search, web, reasoning</div>
+      <div class="cg-cell">Web search, code runner, apps (Drive, Gmail, etc.)</div>
+
+      <div class="cg-row-label">Sub-agents</div>
+      <div class="cg-cell">Internal thinking modes (not truly separate)</div>
+      <div class="cg-cell">Internal coordination + Claude Code for real sub-agents</div>
+
+      <div class="cg-row-label">Best strength</div>
+      <div class="cg-cell">Real-time X/Twitter data, reasoning</div>
+      <div class="cg-cell">Long documents, coding, connected apps, memory</div>
+
+      <div class="cg-row-label">Keyword makes big difference?</div>
+      <div class="cg-cell">Yes — for complex, multi-source tasks</div>
+      <div class="cg-cell">No — prompt detail matters more than any keyword</div>
+
+      <div class="cg-row-label">What actually helps</div>
+      <div class="cg-cell">Prefix for complex tasks; plain language for simple ones</div>
+      <div class="cg-cell">Add more detail and specific angles to your prompt</div>
+    </div>
+
+    <p class="section-label" style="margin-top:8px;">When to use each</p>
+    <div class="when-grid">
+      <div class="when-card">
+        <h3><span style="color:var(--grok)">🐦 Grok</span></h3>
+        <div class="when-item yes">Real-time X/Twitter posts & reactions</div>
+        <div class="when-item yes">Following specific voices (Mollick, Andreessen, etc.)</div>
+        <div class="when-item yes">Complex research where you want visible workflow</div>
+        <div class="when-item no">Working with your own files and apps</div>
+        <div class="when-item no">Long document analysis</div>
+      </div>
+      <div class="when-card">
+        <h3><span style="color:var(--claude)">🤖 Claude</span></h3>
+        <div class="when-item yes">Working with Google Drive, Gmail, Calendar</div>
+        <div class="when-item yes">Coding and building tools/apps</div>
+        <div class="when-item yes">Long documents, reports, research</div>
+        <div class="when-item yes">Memory across conversations (Projects)</div>
+        <div class="when-item no">Real-time X/Twitter monitoring</div>
+      </div>
+      <div class="when-card">
+        <h3><span style="color:var(--accent)">✨ Either</span></h3>
+        <div class="when-item yes">General research and summaries</div>
+        <div class="when-item yes">Drafting content and analysis</div>
+        <div class="when-item yes">Comparing ideas or options</div>
+        <div class="when-item yes">Strategic thinking and planning</div>
+        <div class="when-item yes">Daily knowledge work</div>
+      </div>
+    </div>
+
+    <div class="insight">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-text">
+        <strong>Bottom line for training participants:</strong> Stop worrying about the word. In Grok, use "Orchestrate:" when you want a structured, transparent breakdown of a complex task. In Claude, just describe what you want with enough detail. Both platforms are doing similar things behind the scenes — coordinating steps, using tools, and synthesizing results. The interface is just different.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    Training module • Grok vs Claude • May 2026 • Based on real comparison sessions
+  </div>
+
+</div>
+
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active-grok','active-claude','active-compare');
+    });
+    document.getElementById('panel-' + tab).classList.add('active');
+    const btn = event.currentTarget;
+    btn.classList.add('active-' + tab);
+  }
+
+  function switchQuery(platform, idx) {
+    const prefix = platform + '-q';
+    document.querySelectorAll('[id^="' + prefix + '"]').forEach(el => el.classList.remove('active'));
+    document.getElementById(prefix + idx).classList.add('active');
+
+    const btnPrefix = platform + 'q';
+    document.querySelectorAll('[id^="' + btnPrefix + '"]').forEach(b => {
+      b.classList.remove('active', 'active-claude');
+    });
+    const activeBtn = document.getElementById(btnPrefix + idx);
+    activeBtn.classList.add(platform === 'c' ? 'active-claude' : 'active');
+    activeBtn.classList.add('active');
+  }
+</script>
 </body>
-
 </html>
