@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grok Orchestrator Training: Normal vs Orchestrate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    .tab-active { 
+      border-bottom: 4px solid #3b82f6; 
+      font-weight: 600; 
+      color: #1e40af;
+    }
+    .content-card { min-height: 420px; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+  <div class="max-w-7xl mx-auto p-8">
+    <header class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-gray-900 mb-3">Grok Orchestrator Training</h1>
+      <p class="text-xl text-gray-600">Normal Mode vs "Orchestrate:" Mode — Interactive Demo</p>
+    </header>
+
+    <!-- Original Prompts -->
+    <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-10">
+      <h3 class="font-semibold text-blue-900 mb-4">Original Prompts Used in Examples</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+        <div>
+          <strong>Query 1:</strong><br>
+          “Summarize All-In Podcast’s view on AI coding agents”
+        </div>
+        <div>
+          <strong>Query 2:</strong><br>
+          “Help me decide whether to invest in AI infrastructure companies — compare data center stocks, energy, and chips.”
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex justify-center gap-8 mb-8 border-b border-gray-300">
+      <button onclick="showTab(0)" id="tab0" class="tab-active pb-3 px-8 text-lg">Query 1: All-In Podcast AI Coding Agents</button>
+      <button onclick="showTab(1)" id="tab1" class="pb-3 px-8 text-lg">Query 2: AI Infrastructure Investment Decision</button>
+    </div>
+
+    <!-- Query 1 -->
+    <div id="content0">
+      <div class="grid grid-cols-2 gap-8">
+        <!-- Normal Mode Query 1 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
+          <div class="flex items-center gap-3 mb-6">
+            <i class="fa-solid fa-bolt text-amber-500 text-2xl"></i>
+            <h2 class="text-2xl font-semibold">Normal Mode</h2>
+          </div>
+          <div class="prose prose-gray">
+            <p>All-In Podcast is very bullish on AI coding agents. Recent episodes with Marc Benioff highlight how tools from Anthropic (Claude) are making coding dramatically cheaper and faster. Benioff says he's spending ~$300M this year on Anthropic and that agents let Salesforce do things they couldn't before — humans + agents working together. </p>
+            <p>They see agents disrupting SaaS (some companies will thrive by focusing on customers/innovation, others will die if they don't adapt). Jensen Huang clip: every engineer will soon have 100 agents, shifting work to creativity and orchestration rather than raw coding. </p>
+            <p><strong>Overall tone</strong>: Massive efficiency gains, but it will reshape software companies and valuations.</p>
+          </div>
+        </div>
+
+        <!-- Orchestrate Mode Query 1 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
+          <div class="flex items-center gap-3 mb-6">
+            <i class="fa-solid fa-sitemap text-blue-600 text-2xl"></i>
+            <h2 class="text-2xl font-semibold">Orchestrate Mode</h2>
+          </div>
+          <div class="prose prose-gray">
+            <p class="text-blue-600 font-medium mb-3">Orchestrator Plan → Researcher + Analyst + Critic + Synthesizer</p>
+            <ul class="list-disc pl-5 space-y-3">
+              <li><strong>Enthusiasm Level</strong>: Extremely high. Benioff calls coding agents “awesome” and a “rocket ship.”</li>
+              <li><strong>Core View</strong>: Agents make everything cheaper/faster → unprecedented efficiency in service, marketing, and distribution.</li>
+              <li><strong>SaaS Impact</strong>: Brutal adaptation — customer-obsessed companies win, others die. Public markets will punish fantasy valuations.</li>
+              <li><strong>Broader Shift</strong>: Engineers move from writing code to specifying architectures and managing agent teams.</li>
+              <li><strong>Caveats</strong>: Power/compute constraints (Chamath), open-source agents as potential disruptors.</li>
+            </ul>
+            <p class="mt-6 font-medium">Synthesis: Transformative and inevitable. Short-term disruption, long-term software productivity explosion and abundance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Query 2 -->
+    <div id="content1" class="hidden">
+      <div class="grid grid-cols-2 gap-8">
+        <!-- Normal Mode Query 2 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
+          <div class="flex items-center gap-3 mb-6">
+            <i class="fa-solid fa-bolt text-amber-500 text-2xl"></i>
+            <h2 class="text-2xl font-semibold">Normal Mode</h2>
+          </div>
+          <div class="prose prose-gray">
+            <p>AI infrastructure is booming due to hyperscaler CapEx (hundreds of billions in 2026). </p>
+            <ul class="list-disc pl-5 space-y-2">
+              <li><strong>Chips</strong>: Nvidia (NVDA) dominant but high valuations.</li>
+              <li><strong>Data Centers</strong>: EQIX, DLR, Vertiv (VRT) benefiting from rack density.</li>
+              <li><strong>Energy</strong>: Constellation (CEG), Bloom Energy (BE) seeing huge demand from AI power needs.</li>
+            </ul>
+            <p><strong>Quick Take</strong>: Yes, invest for long-term tailwinds, but diversify. Chips are more mature; data centers + energy have more runway. Watch Big Tech CapEx updates. Risks: interest rates, overbuild.</p>
+          </div>
+        </div>
+
+        <!-- Orchestrate Mode Query 2 -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 content-card">
+          <div class="flex items-center gap-3 mb-6">
+            <i class="fa-solid fa-sitemap text-blue-600 text-2xl"></i>
+            <h2 class="text-2xl font-semibold">Orchestrate Mode</h2>
+          </div>
+          <div class="prose prose-gray">
+            <p class="text-blue-600 font-medium mb-3">Orchestrator Plan → Multiple researchers + Analyst + Critic + Synthesizer</p>
+            
+            <table class="w-full border-collapse text-sm mb-6">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="p-3 text-left">Sector</th>
+                  <th class="p-3 text-left">Tailwinds</th>
+                  <th class="p-3 text-left">Risks</th>
+                  <th class="p-3 text-left">Outlook</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td class="p-3 border-t">Chips</td><td class="p-3 border-t">GPU + custom accelerators</td><td class="p-3 border-t">High valuations, geopolitics</td><td class="p-3 border-t">Strong but maturing</td></tr>
+                <tr><td class="p-3 border-t">Data Centers</td><td class="p-3 border-t">Rack density + buildout</td><td class="p-3 border-t">Power shortages, delays</td><td class="p-3 border-t font-bold text-green-600">Highest near-term upside</td></tr>
+                <tr><td class="p-3 border-t">Energy</td><td class="p-3 border-t">Nuclear & fuel cells demand</td><td class="p-3 border-t">Regulation, grid issues</td><td class="p-3 border-t">Explosive potential</td></tr>
+              </tbody>
+            </table>
+            
+            <p class="font-medium">Recommendation: Overweight Data Centers + Energy now. Diversify across all three. Multi-year hold favored.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Differences -->
+    <div class="mt-16 bg-white rounded-3xl shadow p-10">
+      <h3 class="text-2xl font-bold mb-8 text-center">Key Differences Summary</h3>
+      <div class="grid grid-cols-3 gap-8 text-center">
+        <div>
+          <div class="text-5xl mb-4">⚡</div>
+          <h4 class="font-semibold">Normal Mode</h4>
+          <ul class="text-left mt-4 space-y-2 text-sm">
+            <li>✓ Fast</li>
+            <li>✓ Conversational</li>
+            <li>✓ Good for simple asks</li>
+            <li class="text-red-500">✗ Less structure &amp; depth</li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-5xl mb-4">🧠</div>
+          <h4 class="font-semibold">Orchestrate Mode</h4>
+          <ul class="text-left mt-4 space-y-2 text-sm">
+            <li>✓ Full internal team</li>
+            <li>✓ Transparent workflow</li>
+            <li>✓ Structured &amp; thorough</li>
+            <li>✓ Better for complex tasks</li>
+          </ul>
+        </div>
+        <div>
+          <div class="text-5xl mb-4">🎯</div>
+          <h4 class="font-semibold">When to Use</h4>
+          <p class="mt-6 text-sm leading-relaxed">Use <strong>Orchestrate:</strong> for research, decisions, comparisons, or recurring tracking.<br><br>Use Normal for quick facts or casual questions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showTab(n) {
+      document.getElementById('content0').classList.add('hidden');
+      document.getElementById('content1').classList.add('hidden');
+      document.getElementById('content' + n).classList.remove('hidden');
+
+      document.getElementById('tab0').classList.remove('tab-active');
+      document.getElementById('tab1').classList.remove('tab-active');
+      document.getElementById('tab' + n).classList.add('tab-active');
+    }
+    showTab(0);
+  </script>
+</body>
+</html>
